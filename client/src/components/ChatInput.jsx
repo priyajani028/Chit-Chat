@@ -8,6 +8,8 @@ import {BsEmojiSmileFill} from 'react-icons/bs'
 function ChatInput({handleSendMsg}) {
     const [showEmojiPicker, setShowEmojiPicker] =useState(false);
     const [msg,setMsg]=useState('');
+    // const fileInputRef = useRef(null);
+    const [photo, setPhoto] = useState(null);
     const handleEmojiPickerHideShow=()=>{
         //console.log(showEmojiPicker);
         setShowEmojiPicker(!showEmojiPicker);
@@ -21,14 +23,33 @@ function ChatInput({handleSendMsg}) {
         //console.log(message);
         //console.log(emoji);
     }
-
-    const sendChat=(event)=>{
-        event.preventDefault();
-        if(msg.length>0){
-            handleSendMsg(msg);
-            setMsg('')
+    const handleFileUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const dataURL = reader.result;
+            setPhoto(dataURL);
+          };
+          reader.readAsDataURL(file);
         }
-    }
+      };
+
+    // const sendChat=(event)=>{
+    //     event.preventDefault();
+    //     if(msg.length>0){
+    //         handleSendMsg(msg);
+    //         setMsg('')
+    //     }
+    // }
+    const sendChat = (event) => {
+        event.preventDefault();
+        if (msg.length > 0 || photo) {
+          handleSendMsg(msg, photo);
+          setMsg('');
+          setPhoto(null);
+        }
+      };
   return (
     <Container>
         <div className="button-container">
@@ -40,9 +61,23 @@ function ChatInput({handleSendMsg}) {
         </div>
         <form className='input-container' onSubmit={(e)=>sendChat(e)}>
             <input type="text" placeholder="type your message here" value={msg} onChange={(e)=>setMsg(e.target.value)} />
+
+            <label className="file-upload-label" htmlFor="file-upload">
+          <span>Upload Photo</span>
+          <input
+            id="file-upload"
+            type="file"
+            accept="image/*"
+            // ref={fileInputRef}
+            onChange={handleFileUpload}
+          />
+        </label>
+
             <button className='submit'>
                 <IoMdSend/>
             </button>
+            
+
         </form>
     </Container>
   )
